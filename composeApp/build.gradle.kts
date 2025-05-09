@@ -30,7 +30,9 @@ kotlin {
             runtimeOnly("org.jetbrains.compose.material:material-icons-extended:1.7.3")
         }
         desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
+            implementation(compose.desktop.currentOs) {
+                exclude("org.jetbrains.compose.material", "material-icons-extended-desktop")
+            }
             implementation(libs.kotlinx.coroutines.swing)
         }
     }
@@ -45,6 +47,7 @@ compose.desktop {
             version.set("7.4.2")
             obfuscate.set(false)
             optimize.set(false)
+            configurationFiles.from(file("configs/proguard-rules.pro"))
         }
 
         nativeDistributions {

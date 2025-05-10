@@ -21,12 +21,16 @@ jobs:
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
-      
+
       - name: Build for Linux
-        run: ./gradlew packageReleaseDistributionForCurrentOS -PsyncComposeSkikoVersion=skiko-native-all
+        run: |
+          ./gradlew :composeApp:packageReleaseDistributionForCurrentOS
+          ls -R composeApp/build
 
       - name: Build for Windows
-        run: ./gradlew packageReleaseDistributionForCurrentOS -PtargetOs=windows
+        run: |
+          ./gradlew :composeApp:packageReleaseDistributionForCurrentOS -PtargetOs=windows
+          ls -R composeApp/build
 
       - name: Create Release
         id: create_release
@@ -39,16 +43,10 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Debug Build Directories
+      - name: Debug Build Output
         run: |
-          echo "Current directory:"
-          pwd
-          echo "\nRoot directory contents:"
-          ls -la
-          echo "\nBuild directory contents (if exists):"
-          ls -la build || echo "Build directory does not exist"
-          echo "\nGradle tasks:"
-          ./gradlew tasks --group="compose desktop"
+          echo "ComposeApp directory contents:"
+          ls -R composeApp/build || echo "ComposeApp build directory does not exist"
 
       - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1
@@ -56,7 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/compose/binaries/main/release/app/linuxApp
+          asset_path: composeApp/build/compose/binaries/main-release/app/linuxApp
           asset_name: linuxAppImage
           asset_content_type: application/octet-stream
 
@@ -66,6 +64,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/compose/binaries/main/release/app/windowsApp.exe
+          asset_path: composeApp/build/compose/binaries/main/release/app/windowsApp.exe
           asset_name: windowsApp.exe
           asset_content_type: application/octet-stream

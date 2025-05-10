@@ -48,6 +48,12 @@ jobs:
           echo "ComposeApp directory contents:"
           ls -R composeApp/build/compose/binaries/main-release/deb || echo "ComposeApp build directory does not exist"
 
+      - name: Get version
+        id: get_version
+        run: |
+          version=$(./gradlew -q printVersion)
+          echo "version=$version" >> $GITHUB_ENV
+
       - name: Upload Linux AppImage
         uses: actions/upload-release-asset@v1
         env:
@@ -64,7 +70,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ steps.printVersion.outputs.version }}_amd64.deb
+          asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ env.version }}_amd64.deb
           asset_name: linuxDebFile
           asset_content_type: application/octet-stream
 

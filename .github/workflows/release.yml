@@ -91,7 +91,7 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          version=$(./gradlew -q printVersion)
+          version=$(./gradlew.bat -q printVersion)
           echo "version=$version" >> $GITHUB_ENV
 
       - name: Build for Windows

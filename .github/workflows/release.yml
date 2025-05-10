@@ -46,7 +46,7 @@ jobs:
       - name: Debug Build Output
         run: |
           echo "ComposeApp directory contents:"
-          ls -R composeApp/build || echo "ComposeApp build directory does not exist"
+          ls -R composeApp/build/compose/binaries || echo "ComposeApp build directory does not exist"
 
       - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1

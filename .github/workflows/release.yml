@@ -37,7 +37,7 @@ jobs:
           echo "Windows build directory structure:"
           find composeApp/build -type f -name "*.exe" || echo "No .exe files found"
           echo "\nComplete build directory structure:"
-          find composeApp/build -type f
+          find composeApp/build/compose/binaries/main-release/app/TransactionTracker -type f
 
       - name: Create Release
         id: create_release

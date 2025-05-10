@@ -19,28 +19,34 @@ fun generate(
     onError: (Exception) -> Unit = {},
     onSuccess: () -> Unit = {}
 ) {
-    try {
-        val filter: ((Transaction) -> Boolean)? = {
-            val startDate = metaInformation.startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val endDate = metaInformation.endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val transactionDate = it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val include =
-                !transactionDate.isBefore(startDate) && !transactionDate.isAfter(endDate) && it.amount.amount != 0.0
-            println("$it will ${if (!include) "NOT" else ""} be included in the report.")
-            include
-        }
-        println("Created filter for date-range: ${metaInformation.startDate} - ${metaInformation.endDate}")
-        val transactions = parseCSV(inputFilePath, filter = filter)
-        println("Found ${transactions.size} transactions")
-        val metaInformationWithIBAN = metaInformation.copy(iban = Constants.outgoingIBAN)
-        println("Updated meta information: $metaInformationWithIBAN")
-        val yearlyTransactions = YearlyTransactions(metaInformationWithIBAN, previousAmount, transactions)
-        exportToExcelFile(yearlyTransactions, outputFilePath)
-        onSuccess()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        onError(e)
+  try {
+    val filter: ((Transaction) -> Boolean)? = {
+      val startDate =
+          metaInformation.startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+      val endDate = metaInformation.endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+      val transactionDate = it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+      val include =
+          !transactionDate.isBefore(startDate) &&
+              !transactionDate.isAfter(endDate) &&
+              it.amount.amount != 0.0
+      println("$it will ${if (!include) "NOT" else ""} be included in the report.")
+      include
     }
+    println(
+        "Created filter for date-range: ${metaInformation.startDate} - ${metaInformation.endDate}")
+    val transactions = parseCSV(inputFilePath, filter = filter)
+    println("Found ${transactions.size} transactions")
+    val metaInformationWithIBAN = metaInformation.copy(iban = Constants.outgoingIBAN)
+    println("Updated meta information: $metaInformationWithIBAN")
+    var yearlyTransactions =
+        YearlyTransactions(metaInformationWithIBAN, previousAmount, transactions)
+    yearlyTransactions = applyModifications(yearlyTransactions)
+    exportToExcelFile(yearlyTransactions, outputFilePath)
+    onSuccess()
+  } catch (e: Exception) {
+    e.printStackTrace()
+    onError(e)
+  }
 }
 
 fun String.clean() = this.replace("\"", "").trim()

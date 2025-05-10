@@ -1,4 +1,4 @@
-package com.github.shahondin1624
+package com.github.shahondin1624.composables
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

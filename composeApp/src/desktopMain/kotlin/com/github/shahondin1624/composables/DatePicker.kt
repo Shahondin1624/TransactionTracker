@@ -1,18 +1,19 @@
-package com.github.shahondin1624
+package com.github.shahondin1624.composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
 fun DatePicker(
-    focusRequester: androidx.compose.ui.focus.FocusRequester,
-    nextFocusRequester: androidx.compose.ui.focus.FocusRequester? = null,
+    focusRequester: FocusRequester,
+    nextFocusRequester: FocusRequester? = null,
     labelText: String = "Enter Date (DD.MM.YYYY)",
     onValidDateTyped: (String) -> Unit = {}
 ) {

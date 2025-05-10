@@ -38,6 +38,7 @@ kotlin {
     }
 }
 
+version = "0.1.0"
 
 compose.desktop {
     application {
@@ -54,7 +55,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb,
                 TargetFormat.Exe, TargetFormat.AppImage)
             packageName = "com.github.shahondin1624"
-            packageVersion = "1.0.0"
+            packageVersion = version.toString()
         }
     }
 }

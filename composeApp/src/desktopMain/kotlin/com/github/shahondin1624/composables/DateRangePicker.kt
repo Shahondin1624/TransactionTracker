@@ -1,4 +1,4 @@
-package com.github.shahondin1624
+package com.github.shahondin1624.composables
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -6,7 +6,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.github.shahondin1624.Constants
 import java.util.*
 
 @Composable
@@ -57,7 +59,7 @@ fun DateRangePicker(
     }
 
     if (isInvalidRange) {
-        Text("End date must be after start date", color = androidx.compose.ui.graphics.Color.Red)
+        Text("End date must be after start date", color = Color.Red)
     }
 }
 

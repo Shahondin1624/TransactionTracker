@@ -8,3 +8,5 @@
 
 # Kotlinx coroutines rules seems to be outdated with the latest version of Kotlin and Proguard
 -keep class kotlinx.coroutines.** { *; }
+
+-dontwarn **

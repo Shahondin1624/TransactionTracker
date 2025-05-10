@@ -45,8 +45,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/compose/binaries/main/release/app/linuxApp
-          asset_name: linuxApp
+          asset_path: ./build/compose/binaries/main-release/app/TransactionTracker/bin/TransactionTracker
+          asset_name: linuxAppImage
           asset_content_type: application/octet-stream
 
       - name: Upload Windows Binary

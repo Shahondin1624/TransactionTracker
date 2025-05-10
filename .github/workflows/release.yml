@@ -19,6 +19,9 @@ jobs:
           java-version: '21'
           distribution: 'adopt'
 
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      
       - name: Build for Linux
         run: ./gradlew packageReleaseDistributionForCurrentOS
 

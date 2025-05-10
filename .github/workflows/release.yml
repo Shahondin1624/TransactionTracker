@@ -32,6 +32,13 @@ jobs:
           ./gradlew :composeApp:packageReleaseDistributionForCurrentOS -PtargetOs=windows
           ls -R composeApp/build
 
+      - name: Debug Windows Build Output
+        run: |
+          echo "Windows build directory structure:"
+          find composeApp/build -type f -name "*.exe" || echo "No .exe files found"
+          echo "\nComplete build directory structure:"
+          find composeApp/build -type f
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

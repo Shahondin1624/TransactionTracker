@@ -18,14 +18,20 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Get version
+        id: get_version
+        run: |
+          version=$(./gradlew -q printVersion)
+          echo "version=$version" >> $GITHUB_ENV
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
+          tag_name: v${{ env.version }}
+          release_name: Release v${{ env.version }}
           draft: false
           prerelease: false
 
@@ -62,7 +68,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/app/TransactionTracker/bin/TransactionTracker
-          asset_name: linuxAppImage
+          asset_name: TransactionTracker_${{ env.version }}.AppImage
           asset_content_type: application/octet-stream
 
       - name: Upload Linux .deb
@@ -72,7 +78,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ env.version }}_amd64.deb
-          asset_name: linuxDebFile
+          asset_name: TransactionTracker_${{ env.version }}.deb
           asset_content_type: application/octet-stream
 
   build-windows:
@@ -106,5 +112,5 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/exe/TransactionTracker-${{ env.version }}.exe
-          asset_name: windowsApp.exe
+          asset_name: TransactionTracker_${{ env.version }}.exe
           asset_content_type: application/octet-stream

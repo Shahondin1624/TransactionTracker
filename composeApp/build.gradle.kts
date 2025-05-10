@@ -59,3 +59,11 @@ compose.desktop {
         }
     }
 }
+
+tasks {
+    register("printVersion") {
+        doLast {
+            println(version)
+        }
+    }
+}

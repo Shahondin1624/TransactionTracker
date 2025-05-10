@@ -43,10 +43,10 @@ jobs:
           draft: false
           prerelease: false
 
-#      - name: Debug Build Output
-#        run: |
-#          echo "ComposeApp directory contents:"
-#          ls -R composeApp/build/compose/binaries || echo "ComposeApp build directory does not exist"
+      - name: Debug Build Output
+        run: |
+          echo "ComposeApp directory contents:"
+          ls -R composeApp/build/compose/binaries/main-release/deb || echo "ComposeApp build directory does not exist"
 
       - name: Upload Linux AppImage
         uses: actions/upload-release-asset@v1
@@ -64,7 +64,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ steps.version.outputs.version }}_amd64.deb
+          asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ steps.printVersion.outputs.version }}_amd64.deb
           asset_name: linuxDebFile
           asset_content_type: application/octet-stream
 

@@ -39,10 +39,16 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: List Build Directory
+      - name: Debug Build Directories
         run: |
-          echo "Listing build directory contents:"
-          ls -R ./build/compose/binaries/
+          echo "Current directory:"
+          pwd
+          echo "\nRoot directory contents:"
+          ls -la
+          echo "\nBuild directory contents (if exists):"
+          ls -la build || echo "Build directory does not exist"
+          echo "\nGradle tasks:"
+          ./gradlew tasks --group="compose desktop"
 
       - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1

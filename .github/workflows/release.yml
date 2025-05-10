@@ -6,9 +6,35 @@ on:
       - master
 
 jobs:
-  build:
+  create-release:
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ env.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Get version
+        id: get_version
+        run: |
+          version=$(./gradlew -q printVersion)
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+  build-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -26,53 +52,49 @@ jobs:
         run: |
           ./gradlew :composeApp:packageReleaseDistributionForCurrentOS
 
-      - name: Build for Windows
-        run: |
-          ./gradlew :composeApp:packageReleaseDistributionForCurrentOS -PtargetOs=windows
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
-          draft: false
-          prerelease: false
-
-      - name: Get version
-        id: get_version
-        run: |
-          version=$(./gradlew -q printVersion)
-          echo "version=$version" >> $GITHUB_ENV
-
-      - name: Upload Linux AppImage
+      - name: Upload Linux .AppImage
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/app/TransactionTracker/bin/TransactionTracker
           asset_name: linuxAppImage
           asset_content_type: application/octet-stream
-          
+
       - name: Upload Linux .deb
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/deb/transactiontracker_${{ env.version }}_amd64.deb
           asset_name: linuxDebFile
           asset_content_type: application/octet-stream
 
-      - name: Upload Windows Binary
+  build-windows:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build for Windows
+        run: |
+          ./gradlew :composeApp:packageReleaseDistributionForCurrentOS -PtargetOs=windows
+
+      - name: Upload Windows .exe
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: composeApp/build/compose/binaries/main-release/exe/TransactionTracker-${{ env.version }}.exe
           asset_name: windowsApp.exe
           asset_content_type: application/octet-stream

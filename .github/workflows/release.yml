@@ -42,7 +42,7 @@ jobs:
       - name: List Build Directory
         run: |
           echo "Listing build directory contents:"
-          ls -R build/compose/binaries/
+          ls -R ./build/compose/binaries/
 
       - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1

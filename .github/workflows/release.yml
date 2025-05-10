@@ -25,19 +25,10 @@ jobs:
       - name: Build for Linux
         run: |
           ./gradlew :composeApp:packageReleaseDistributionForCurrentOS
-          ls -R composeApp/build
 
       - name: Build for Windows
         run: |
           ./gradlew :composeApp:packageReleaseDistributionForCurrentOS -PtargetOs=windows
-          ls -R composeApp/build
-
-      - name: Debug Windows Build Output
-        run: |
-          echo "Windows build directory structure:"
-          find composeApp/build -type f -name "*.exe" || echo "No .exe files found"
-          echo "\nComplete build directory structure:"
-          find composeApp/build/compose/binaries/main-release/app/TransactionTracker -type f
 
       - name: Create Release
         id: create_release
@@ -49,11 +40,6 @@ jobs:
           release_name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
-
-      - name: Debug Build Output
-        run: |
-          echo "ComposeApp directory contents:"
-          ls -R composeApp/build/compose/binaries/main-release/deb || echo "ComposeApp build directory does not exist"
 
       - name: Get version
         id: get_version
@@ -87,6 +73,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: composeApp/build/compose/binaries/main-release/app/windowsApp.exe
+          asset_path: composeApp/build/compose/binaries/main-release/exe/TransactionTracker-${{ env.version }}.exe
           asset_name: windowsApp.exe
           asset_content_type: application/octet-stream

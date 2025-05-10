@@ -23,7 +23,7 @@ jobs:
         run: chmod +x ./gradlew
       
       - name: Build for Linux
-        run: ./gradlew packageReleaseDistributionForCurrentOS
+        run: ./gradlew packageReleaseDistributionForCurrentOS -PsyncComposeSkikoVersion=skiko-native-all
 
       - name: Build for Windows
         run: ./gradlew packageReleaseDistributionForCurrentOS -PtargetOs=windows
@@ -45,7 +45,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/compose/binaries/main-release/app/TransactionTracker/bin/TransactionTracker
+          asset_path: ./build/compose/binaries/main/release/app/linuxApp
           asset_name: linuxAppImage
           asset_content_type: application/octet-stream
 

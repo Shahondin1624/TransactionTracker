@@ -38,7 +38,7 @@ kotlin {
     }
 }
 
-version = "0.1.0"
+version = "1.0.1"
 
 compose.desktop {
     application {
@@ -54,7 +54,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb,
                 TargetFormat.Exe, TargetFormat.AppImage)
-            packageName = "com.github.shahondin1624"
+            packageName = "TransactionTracker"
             packageVersion = version.toString()
         }
     }

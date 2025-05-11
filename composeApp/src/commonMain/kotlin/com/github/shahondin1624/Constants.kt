@@ -32,6 +32,3 @@ data class Styling(
     val yellowBackground: CellStyle? = null,
 )
 
-fun formatIban(iban: String): String {
-  return "${iban.substring(0, 4)} ${iban.substring(4, 8)} ${iban.substring(8, 12)} ${iban.substring(12)}"
-}

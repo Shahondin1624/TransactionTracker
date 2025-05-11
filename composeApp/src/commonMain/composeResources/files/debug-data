@@ -1,7 +1,0 @@
-inputFilePath=*.csv
-outputFilePath=*.xlsx
-firstName=
-lastName=
-startDate=dd.MM.yyyy
-endDate=dd.MM.yyyy
-initialAmount=0.0

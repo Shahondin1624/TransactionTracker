@@ -16,6 +16,8 @@ fun DateRangePicker(
     startDateFocusRequester: FocusRequester,
     endDateFocusRequester: FocusRequester,
     nextFocusRequester: FocusRequester? = null,
+    initialStartDate: Date? = null,
+    initialEndDate: Date? = null,
     onAllRangeSelected: (Pair<Date, Date>) -> Unit = {}
 ) {
     var startDate by remember { mutableStateOf<Date?>(null) }
@@ -23,6 +25,7 @@ fun DateRangePicker(
     var isInvalidRange by remember { mutableStateOf(false) }
 
     DatePicker(
+        initialValue = initialStartDate,
         labelText = "Enter Start Date",
         focusRequester = startDateFocusRequester,
         nextFocusRequester = endDateFocusRequester
@@ -41,6 +44,7 @@ fun DateRangePicker(
     Spacer(modifier = Modifier.height(8.dp))
 
     DatePicker(
+        initialValue = initialEndDate,
         labelText = "Enter End Date",
         focusRequester = endDateFocusRequester,
         nextFocusRequester = nextFocusRequester

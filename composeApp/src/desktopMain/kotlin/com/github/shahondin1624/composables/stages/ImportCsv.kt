@@ -23,9 +23,16 @@ fun ImportCSV(vm: TransactionTrackerViewModel) {
         fileDialogType = FileDialog.LOAD,
         filters = listOf("*.csv"),
         labelText = "Input File Path",
-        onPathSelected = { vm.setInputFilePath(it) })
+        initialValue = uiState.inputFilePath,
+        onPathSelected = { vm.setInputFilePath(it) }
+    )
 
-    DateRangePicker(startDateFocus, endDateFocus) { (start, end) ->
+    DateRangePicker(
+        startDateFocusRequester = startDateFocus,
+        endDateFocusRequester = endDateFocus,
+        initialStartDate = uiState.startDate,
+        initialEndDate = uiState.endDate
+    ) { (start, end) ->
         vm.setDateRange(start, end)
     }
 

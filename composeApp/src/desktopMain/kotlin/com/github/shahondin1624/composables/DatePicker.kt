@@ -9,15 +9,24 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
+import com.github.shahondin1624.Constants
+import java.util.*
 
 @Composable
 fun DatePicker(
+    initialValue: Date? = null,
     focusRequester: FocusRequester,
     nextFocusRequester: FocusRequester? = null,
     labelText: String = "Enter Date (DD.MM.YYYY)",
     onValidDateTyped: (String) -> Unit = {}
 ) {
-    var dateText by remember { mutableStateOf(TextFieldValue("")) }
+    var dateText by remember {
+        mutableStateOf(
+            TextFieldValue(
+                initialValue?.let { Constants.dateFormatter.format(it) } ?: ""
+            )
+        )
+    }
     var isError by remember { mutableStateOf(false) }
 
     var modifier = Modifier.fillMaxWidth()

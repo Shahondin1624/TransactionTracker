@@ -20,9 +20,10 @@ fun FilePicker(
     fileDialogType: Int,
     filters: List<String> = listOf(),
     labelText: String,
+    initialValue: String? = null,
     onPathSelected: (String) -> Unit = {}
 ) {
-    var inputFilePath by remember { mutableStateOf("") }
+    var inputFilePath by remember { mutableStateOf(initialValue ?: "") }
     Button(onClick = {
         val fileDialog = FileDialog(Frame(), fileDialogTitle, fileDialogType)
         when (getOS()) {

@@ -4,7 +4,10 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -13,40 +16,26 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.github.shahondin1624.composables.DateRangePicker
 import com.github.shahondin1624.composables.FilePicker
+import com.github.shahondin1624.viewmodel.TransactionTrackerViewModel
 import java.awt.Desktop
 import java.awt.FileDialog
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.*
 
 @Composable
 @Preview
-fun App() {
+fun App(vm: TransactionTrackerViewModel = TransactionTrackerViewModel()) {
     MaterialTheme {
-        var inputFilePath by remember { mutableStateOf("") }
-        var outputFilePath by remember { mutableStateOf("") }
+        val uiState by vm.uiState.collectAsState()
 
-
-        var firstName by remember { mutableStateOf("") }
-        var lastName by remember { mutableStateOf("") }
         val firstNameFocus = remember { FocusRequester() }
         val lastNameFocus = remember { FocusRequester() }
 
-
-        var startDate by remember { mutableStateOf<Date?>(null) }
-        var endDate by remember { mutableStateOf<Date?>(null) }
         val startDateFocus = remember { FocusRequester() }
         val endDateFocus = remember { FocusRequester() }
 
-
-        var initialAmount by remember { mutableStateOf(0.0) }
         val initialAmountFocus = remember { FocusRequester() }
-
-
-        var generating by remember { mutableStateOf(false) }
-        var errorState by remember { mutableStateOf<String?>(null) }
-        var successState by remember { mutableStateOf<String?>(null) }
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -57,7 +46,7 @@ fun App() {
                 fileDialogType = FileDialog.LOAD,
                 filters = listOf("*.csv"),
                 labelText = "Input File Path",
-                onPathSelected = { inputFilePath = it })
+                onPathSelected = { vm.setInputFilePath(it) })
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -66,14 +55,14 @@ fun App() {
                 fileDialogType = FileDialog.SAVE,
                 filters = listOf("*.xlsx"),
                 labelText = "Output File Path",
-                onPathSelected = { outputFilePath = it }
+                onPathSelected = { vm.setOutputFilePath(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
+                value = uiState.firstName,
+                onValueChange = { vm.setFirstName(it) },
                 label = { Text("First Name") },
                 modifier = Modifier.fillMaxWidth()
                     .focusRequester(firstNameFocus)
@@ -87,8 +76,8 @@ fun App() {
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
+                value = uiState.lastName,
+                onValueChange = { vm.setLastName(it) },
                 label = { Text("Last Name") },
                 modifier = Modifier.fillMaxWidth()
                     .focusRequester(lastNameFocus)
@@ -102,17 +91,18 @@ fun App() {
             Spacer(modifier = Modifier.height(8.dp))
 
             DateRangePicker(startDateFocus, endDateFocus, initialAmountFocus) { (start, end) ->
-                startDate = start
-                endDate = end
+                vm.setStartDate(start)
+                vm.setEndDate(end)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = if (initialAmount == 0.0) "" else String.format("%.2f", initialAmount).replace(".", ","),
+                value = if (uiState.initialAmount == 0.0) "" else String.format("%.2f", uiState.initialAmount)
+                    .replace(".", ","),
                 onValueChange = { input: String ->
                     if (input.isEmpty() || input.matches(Regex("^\\d*,?\\d*\$"))) {
-                        initialAmount = if (input.isEmpty()) 0.0 else input.replace(",", ".").toDouble()
+                        vm.setInitialAmount(if (input.isEmpty()) 0.0 else input.replace(",", ".").toDouble())
                     }
                 },
                 label = { Text("Starting value in €") },
@@ -126,37 +116,38 @@ fun App() {
             Button(
                 onClick = {
                     println("Starting generation...")
-                    generating = true
-                    val metaInformation = createDTO(firstName, lastName, startDate!!, endDate!!)
+                    vm.setGenerating(true)
+                    val metaInformation =
+                        createDTO(uiState.firstName, uiState.lastName, uiState.startDate!!, uiState.endDate!!)
                     println("Generated meta information: $metaInformation")
                     generate(
-                        inputFilePath, outputFilePath, metaInformation, initialAmount,
+                        uiState.inputFilePath, uiState.outputFilePath, metaInformation, uiState.initialAmount,
                         onError = { exception ->
                             val sw = StringWriter()
                             exception.printStackTrace(PrintWriter(sw))
                             println("Error occurred: $exception")
-                            errorState = sw.toString()
-                            generating = false
+                            vm.setError(sw.toString())
+                            vm.setGenerating(false)
                         },
                         onSuccess = {
                             println("Generated output file successfully")
-                            successState = outputFilePath
-                            generating = false
+                            vm.setSuccessState(uiState.outputFilePath)
+                            vm.setGenerating(false)
                         })
                 },
-                enabled = (inputFilePath.isNotEmpty() && outputFilePath.isNotEmpty() &&
-                        firstName.isNotEmpty() && lastName.isNotEmpty() &&
-                        startDate != null && endDate != null) && !generating
+                enabled = (uiState.inputFilePath.isNotEmpty() && uiState.outputFilePath.isNotEmpty() &&
+                        uiState.firstName.isNotEmpty() && uiState.lastName.isNotEmpty() &&
+                        uiState.startDate != null && uiState.endDate != null) && !uiState.generating
             ) {
                 Text("Generate Output")
             }
 
-            if (generating) {
+            if (uiState.generating) {
                 Spacer(modifier = Modifier.height(16.dp))
                 CircularProgressIndicator()
             }
 
-            successState?.let { filePath ->
+            uiState.successState?.let { filePath ->
                 Text(
                     text = "Generated $filePath",
                     color = MaterialTheme.colors.primary,
@@ -164,19 +155,19 @@ fun App() {
                         try {
                             Desktop.getDesktop().open(File(filePath))
                         } catch (e: Exception) {
-                            errorState = e.message
+                            vm.setError(e.message)
                         }
                     }
                 )
             }
 
-            errorState?.let { error ->
+            uiState.errorState?.let { error ->
                 AlertDialog(
-                    onDismissRequest = { errorState = null },
+                    onDismissRequest = { vm.setError(error) },
                     title = { Text("Error") },
                     text = { Text(error) },
                     confirmButton = {
-                        Button(onClick = { errorState = null }) {
+                        Button(onClick = { vm.setError(null) }) {
                             Text("OK")
                         }
                     }

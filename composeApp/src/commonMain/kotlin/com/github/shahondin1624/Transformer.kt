@@ -10,7 +10,7 @@ fun applyModifications(input: YearlyTransactions): YearlyTransactions {
 }
 
 fun getAllUniqueDescriptions(transactions: List<Transaction>): Set<String> {
-  return transactions.map { it.description }.toSet()
+    return transactions.filter { !it.modified }.map { it.description }.toSet()
 }
 
 private fun mapDescriptions(transaction: List<Transaction>, mappings: Map<(String) -> Boolean, String>): List<Transaction> =

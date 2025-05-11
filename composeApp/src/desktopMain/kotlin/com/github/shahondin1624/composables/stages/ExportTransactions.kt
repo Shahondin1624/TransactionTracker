@@ -43,6 +43,7 @@ fun ExportTransactions(vm: TransactionTrackerViewModel) {
     )
 
     FilePicker(
+        initialValue = uiState.outputFilePath,
         fileDialogTitle = "Select Output XLSX File",
         fileDialogType = FileDialog.SAVE,
         filters = listOf("*.xlsx"),

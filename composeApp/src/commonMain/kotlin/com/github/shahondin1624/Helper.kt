@@ -29,3 +29,5 @@ fun createTransactionFilter(startDate: Date, endDate: Date): ((Transaction) -> B
     }
     return filter
 }
+
+fun createRegex(easyRegex: String): Regex = easyRegex.replace("*", ".*").toRegex(RegexOption.IGNORE_CASE)

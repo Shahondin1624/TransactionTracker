@@ -121,12 +121,36 @@ class TransactionTrackerViewModel : ViewModel() {
         _uiState.update { it.copy(currentStage = Stage.TransformCSV) }
     }
 
+    fun applyTransformation(originalDescription: String, newDescription: String) {
+        _transactions.update {
+            it.copy(transactions = it.transactions.map { tx ->
+                if (tx.description == originalDescription) {
+                    tx.copy(description = newDescription, modified = true)
+                } else {
+                    tx
+                }
+            })
+        }
+    }
+
+    fun applyTransformation(matcher: (String) -> Boolean, newDescription: String) {
+        _transactions.update {
+            it.copy(transactions = it.transactions.map { tx ->
+                if (matcher(tx.description)) {
+                    tx.copy(description = newDescription, modified = true)
+                } else {
+                    tx
+                }
+            })
+        }
+    }
+
     fun transformTransactions() {
         setGenerating(true)
 
-        _transactions.update {
-            it.copy(
-                transactions = it.transactions.sortedWith(
+        _transactions.update { state ->
+            state.copy(
+                transactions = state.transactions.sortedWith(
                     compareBy<Transaction> { it.date }
                         .thenByDescending { it.number }
                 ))

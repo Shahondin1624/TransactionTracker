@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -65,11 +66,24 @@ fun ShowAllDescriptions(vm: TransactionTrackerViewModel, itemsAfterList: @Compos
                 val tx =
                     if (numbers.size == 1) transactionsState.value.transactions.find { it.number == numbers[0] } else null
 
+                val onAction: () -> Unit = {
+                    if (newDescription.isNotBlank()) {
+                        vm.applyTransformation(description, newDescription)
+                        descriptionStates.remove(description)
+                    }
+                }
+
                 layoutRow(
-                    column1 = { Text(numbers.joinToString(separator = ", ")) },
+                    column1 = {
+                        SelectionContainer {
+                            Text(numbers.joinToString(separator = ", "))
+                        }
+                    },
                     column2 = {
                         TextTooltip(text = tx?.let { "Booked: ${Constants.dateFormatter.format(it.date)}, Amount: ${it.amount.amount}" }) {
-                            Text(description)
+                            SelectionContainer {
+                                Text(description)
+                            }
                         }
                     },
                     column3 = {
@@ -86,12 +100,16 @@ fun ShowAllDescriptions(vm: TransactionTrackerViewModel, itemsAfterList: @Compos
                             onValueChange = { descriptionStates[description] = it },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        SingleLineActionTextInput(
+                            value = newDescription,
+                            onValueChange = { descriptionStates[description] = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            onAction = onAction,
+                            placeholder = { Text("Enter new description") }
+                        )
                     },
                     column5 = {
-                        ApplyNewDescriptionButton {
-                            vm.applyTransformation(description, newDescription)
-                            descriptionStates.remove(description)
-                        }
+                        ApplyNewDescriptionButton(onClick = onAction)
                     }
                 )
             }
@@ -123,6 +141,15 @@ private fun RegexTransformer(vm: TransactionTrackerViewModel) {
     val regex = createRegex(regexString)
     val state = vm.transactions.collectAsState()
     val matchingResults = state.value.transactions.filter { it.description.matches(regex) }
+    val onAction: () -> Unit = {
+        if (newDescription.isNotBlank() && regexString.isNotBlank()) {
+            vm.applyTransformation(newDescription = newDescription, matcher = { description ->
+                description.matches(regex)
+            })
+            regexString = ""
+            newDescription = ""
+        }
+    }
 
     layoutRow(
         column1 = {
@@ -130,7 +157,7 @@ private fun RegexTransformer(vm: TransactionTrackerViewModel) {
         },
         column2 = {
             TextTooltip(text = "Using a '*' will match any number of characters") {
-                TextField(
+                SingleLineActionTextInput(
                     value = regexString,
                     onValueChange = { regexString = it },
                     placeholder = { Text("Regex like '*thing you want to match*'") },
@@ -147,21 +174,16 @@ private fun RegexTransformer(vm: TransactionTrackerViewModel) {
             )
         },
         column4 = {
-            TextField(
+            SingleLineActionTextInput(
                 value = newDescription,
                 onValueChange = { newDescription = it },
-                placeholder = { Text("Enter new description") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onAction = onAction,
+                placeholder = { Text("Enter new description") }
             )
         },
         column5 = {
-            ApplyNewDescriptionButton {
-                vm.applyTransformation(newDescription = newDescription, matcher = { description ->
-                    description.matches(regex)
-                })
-                regexString = ""
-                newDescription = ""
-            }
+            ApplyNewDescriptionButton(onClick = onAction)
         }
     )
 }
